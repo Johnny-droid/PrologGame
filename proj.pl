@@ -18,8 +18,11 @@ game_cycle(GameState-Player):-
 
 
 
-choose_move(GameState, human, Move):- !. % change this
-    % interaction to select move
+choose_move(GameState, human-X, Move):- 
+    format('Player ~d turn!', [X]), nl,
+    write('Enter row: '), read(Row),
+    write('Enter column: '), read(Column),
+    Move = Row-Column.
 
 choose_move(GameState, computer-Level, Move):-
     valid_moves(GameState, Moves),
@@ -96,3 +99,17 @@ example(1) :-
     Player = human,
     display_game(GameState-Player).
 
+example(2) :- 
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+    Player = computer,
+    display_game(GameState-Player),
+    choose_move(GameState, human-1, Move),
+    write(Move).
