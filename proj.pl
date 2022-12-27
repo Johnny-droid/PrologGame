@@ -45,10 +45,10 @@ choose_move(2, GameState, Moves, Move):-
 % ------------------------- DISPLAY GAME --------------------------------
 
 display_game(GameState-Player) :-
-    display_header(),
+    display_header,
     display_game_aux(GameState-Player, 1).
 
-display_header() :-
+display_header :-
     write('    -------------------------------------'), nl,
     write('    | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |'), nl,
     write('-----------------------------------------'), nl.   
