@@ -137,7 +137,7 @@ example(8) :-
 
     Player = player(human, 1, 0),
 
-    RowList = [0,1,0,0,0,0,0,0,0]
+    RowList = [0,1,0,0,0,0,0,0,0],
     write('RowList: '), write(RowList), nl,
     Value is 0,
     check_horizontal(RowList, 4, Player, Value),
@@ -167,8 +167,43 @@ example(9) :-
     retractall(player(_,_,_)).
 
 
-% Test the valid moves List to make sure every move is included
+% Test the nthMatrix
 example(10) :- 
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,4,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+    nthMatrix(4-4, GameState, Value),
+    write('Value: '), write(Value), nl.
+
+
+example(11) :- 
+    assert(player(human, 1, 0)),
+    assert(player(human, 2, 0)),
+
+    Player = player(human, 1, 0),
+
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,1]],
+
+    check_direction(6-6, 1-1, GameState, Player, Value),
+    write('Value: '), write(Value), nl,
+    retractall(player(_,_,_)).
+
+
+example(12) :- 
     assert(player(human, 1, 0)),
     assert(player(human, 2, 0)),
 
@@ -188,22 +223,34 @@ example(10) :-
     retractall(player(_,_,_)).
 
 
-
-example(11) :- 
+% checking if it sees the 2 in the middle that is blocking the 1
+example(13) :- 
     assert(player(human, 1, 0)),
     assert(player(human, 2, 0)),
 
     Player = player(human, 1, 0),
 
     GameState = [[0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,2,0,0],
+                 [0,1,0,0,0,0,2,1,0],
+                 [0,0,0,0,0,0,2,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0]],
     check_horizontal(GameState, 2-2, Player, Value1),
-    write('value: '), write(Value1), nl,
+    write('Value: '), write(Value1), nl,
+    retractall(player(_,_,_)).
+
+
+example(14) :- 
+    assert(player(human, 1, 0)),
+    assert(player(computer, 2, 1)),
+
+    initial_state(GameState),
+    player(Type, 1, Level),
+    write(Player), nl,
+    game_cycle(GameState, player(Type, 1, Level)),
+
     retractall(player(_,_,_)).
