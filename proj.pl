@@ -1,3 +1,5 @@
+:- use_module(library(between)).
+
 :- consult('board.pl').
 
 % GameState is a list of lists (9x9)
@@ -64,11 +66,19 @@ choose_move_computer(2, GameState, Player, Moves, Move):-
 move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate move
     nth(Row, GameState, RowList),
     nth(Column, RowList, 0),
+    valid_move(GameState, Row-Column, player(_, N, _)),
     replace(Column, RowList, N, NewRowList),
     replace(Row, GameState, NewRowList, NewGameState).
 
 
-valid_move(GameState, Row-Column):- !.
+valid_move(GameState, Row-Column, Player):- 
+    check_horizontal(GameState, Row-Column, Player, Value1),
+    check_vertical(GameState, Row-Column, Player, Value2),
+    check_diagonal1(GameState, Row-Column, Player, Value3),
+    check_diagonal2(GameState, Row-Column, Player, Value4),
+    border_distance(Row-Column, Distance),
+    Value is Value1+Value2+Value3+Value4,
+    Distance @=< Value.
 
 
 
@@ -188,7 +198,7 @@ check_direction_aux(RowStart-ColumnStart, RowDirection-ColumnDirection, GameStat
     check_direction_aux(RowStart1-ColumnStart1, RowDirection-ColumnDirection, GameState, Player, Value)).
 
 check_horizontal(GameState, Row-Column, Player, Value):-
-    check_direction(Row-Column, 0-1, GameState, Player, ValueLeft),
+    check_direction(Row-Column, 0-(-1), GameState, Player, ValueLeft),
     check_direction(Row-Column, 0-1, GameState, Player, ValueRight),
     Value is ValueLeft+ValueRight.
 
@@ -197,15 +207,24 @@ check_vertical(GameState, Row-Column, Player, Value):-
     check_direction(Row-Column, -1-0, GameState, Player, ValueDown),
     Value is ValueUp+ValueDown.
 
-check_diagonal(GameState, Row-Column, Player, Value):-
-    check_direction(Row-Column, 1-1, GameState, Player, ValueUpRight),
-    check_direction(Row-Column, -1-1, GameState, Player, ValueDownLeft),
+check_diagonal1(GameState, Row-Column, Player, Value):-
+    check_direction(Row-Column, -1-1, GameState, Player, ValueUpRight),
+    check_direction(Row-Column, 1-(-1), GameState, Player, ValueDownLeft),
     Value is ValueUpRight+ValueDownLeft.
 
-check_diagonal(GameState, Row-Column, Player, Value):-
-    check_direction(Row-Column, 1-1, GameState, Player, ValueUpLeft),
-    check_direction(Row-Column, -1-1, GameState, Player, ValueDownRight),
+check_diagonal2(GameState, Row-Column, Player, Value):-
+    check_direction(Row-Column, -1-(-1), GameState, Player, ValueUpLeft),
+    check_direction(Row-Column, 1-1, GameState, Player, ValueDownRight),
     Value is ValueUpLeft+ValueDownRight.
+
+border_distance(Row-Column, Distance):-
+    Row1 is Row-0,
+    Row2 is 8-Row,
+    Col1 is Column-0,
+    Col2 is 8-Column,
+    MinRow is min(Row1, Row2),
+    MinColumn is min(Col1, Col2),
+    Distance is min(MinRow, MinColumn).
 
 /*
 check_horizontal(GameState, Row-Column, Player, Value):-

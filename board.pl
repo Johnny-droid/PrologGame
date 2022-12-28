@@ -165,3 +165,45 @@ example(9) :-
     check_horizontal(GameState, 1-4, Player, Value),
     write('Value: '), write(Value), nl,
     retractall(player(_,_,_)).
+
+
+% Test the valid moves List to make sure every move is included
+example(10) :- 
+    assert(player(human, 1, 0)),
+    assert(player(human, 2, 0)),
+
+    Player = player(human, 1, 0),
+
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+    valid_moves(GameState, Player, Moves),
+    write('Moves: '), write(Moves), nl,
+    retractall(player(_,_,_)).
+
+
+
+example(11) :- 
+    assert(player(human, 1, 0)),
+    assert(player(human, 2, 0)),
+
+    Player = player(human, 1, 0),
+
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+    check_horizontal(GameState, 2-2, Player, Value1),
+    write('value: '), write(Value1), nl,
+    retractall(player(_,_,_)).
