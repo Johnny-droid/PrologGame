@@ -3,10 +3,15 @@
 % GameState is a list of lists (9x9)
 
 % ------------------------- GAME MAIN STRUCTURE --------------------------------
-play_game:-
-    initial_state(GameState-Player),
-    display_game(GameState-Player),
-    game_cycle(GameState-Player).
+play :-
+    display_main_menu,
+    write('Enter your option: '), read(Option),
+    choose_main_menu(Option).
+
+play_game(Player1, Player2):-
+    initial_state(GameState),
+    display_game(GameState-Player).
+    %game_cycle(GameState-Player).
 
 game_cycle(GameState-Player):-
     game_over(GameState, Winner), !,
@@ -19,31 +24,6 @@ game_cycle(GameState-Player):-
     display_game(GameState-NextPlayer), !,
     game_cycle(NewGameState-NextPlayer).
 
-
-% ------------------------- GAME MENUS --------------------------------
-
-display_main_menu :- 
-    write(' ------------------------------------------------- \n'),
-    write('|                                                 | \n'),  
-    write('|                     CENTER                      | \n'),
-    write('|                                                 | \n'),   
-    write('|               1. Player vs Player               | \n'),
-    write('|               2. Player vs Computer             | \n'), 
-    write('|               2. Computer vs Computer           | \n'), 
-    write('|               3. Exit                           | \n'), 
-    write('|                                                 | \n'),  
-    write('|                                                 | \n'),   
-    write(' ------------------------------------------------- \n').  
-
-choose_main_menu :-
-    display_main_menu,
-    write('Enter your option: '), read(Option),
-    choose_main_menu(Option).
-
-choose_main_menu(1):- play_game.   
-choose_main_menu(2):- play_game.
-choose_main_menu(3):- play_game.
-choose_main_menu(4):- halt.
 
 
 % ------------------------- GAME LOGIC --------------------------------
@@ -71,6 +51,30 @@ choose_move(2, GameState, Moves, Move):-
 game_over(GameState, Winner) :- 
     nth(4, GameState, Row),
     nth(4, Row, Winner), (Winner \= 0), !.
+
+
+% ------------------------- GAME MENUS --------------------------------
+
+display_main_menu :- 
+    write(' ------------------------------------------------- \n'),
+    write('|                                                 | \n'),  
+    write('|                     CENTER                      | \n'),
+    write('|                                                 | \n'),   
+    write('|               1. Player vs Player               | \n'),
+    write('|               2. Player vs Computer             | \n'), 
+    write('|               3. Computer vs Computer           | \n'), 
+    write('|               4. Exit                           | \n'), 
+    write('|                                                 | \n'),  
+    write('|                                                 | \n'),   
+    write(' ------------------------------------------------- \n').  
+
+
+
+choose_main_menu(1):- play_game(human-1, human-2).   
+choose_main_menu(2):- play_game(human-1, computer-2).
+choose_main_menu(3):- play_game(computer-1, computer-2).
+choose_main_menu(4):- halt.
+
 
 
 % ------------------------- DISPLAY GAME --------------------------------
@@ -119,52 +123,3 @@ nth(N, [_|T], X) :-
 
 
 
-% ------------------------ GameState Examples ------------------------------
-
-
-example(1) :-
-    GameState = [[0,0,0,0,1,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,2],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,1,0,0,0,0,0,2],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,1,0,0]],
-    Player = human,
-    display_game(GameState-Player).
-
-example(2) :- 
-    GameState = [[0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0]],
-    Player = human,
-    display_game(GameState-Player),
-    choose_move(GameState, Player-1, Move),
-    write(Move).
-
-
-example(3) :- 
-    GameState = [[1,0,0,0,0,0,0,0,0],
-                 [0,1,0,0,0,0,0,0,0],
-                 [0,0,1,0,0,0,0,0,0],
-                 [0,0,0,1,0,0,0,0,0],
-                 [0,0,0,0,2,0,0,0,0],
-                 [0,0,0,0,0,1,0,0,0],
-                 [0,0,0,0,0,0,1,0,0],
-                 [0,0,0,0,0,0,0,1,0],
-                 [0,0,0,0,0,0,0,0,1]],
-    Player = human,
-    display_game(GameState-Player),
-    game_over(GameState, Winner),
-    congratulate(Winner).
-
-example(4) :- 
-    choose_main_menu.
