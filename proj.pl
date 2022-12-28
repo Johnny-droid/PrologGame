@@ -8,69 +8,73 @@ play :-
     write('Enter your option: '), read(Option),
     choose_main_menu(Option).
 
-play_game(Player1, Player2):-
+play_game():-
     initial_state(GameState),
-    display_game(GameState).
-    %game_cycle(GameState-1).
+    display_game(GameState),
+    Player = player(_, 1, _),
+    write(Player), nl,
+    game_cycle(GameState, Player).
 
-game_cycle(GameState-Player):-
+game_cycle(GameState, Player):-
     game_over(GameState, Winner), !,
     congratulate(Winner).
 
-game_cycle(GameState-Player):-
+game_cycle(GameState, Player):-
     choose_move(GameState, Player, Move),
-    move(GameState, Move, NewGameState),
+    move(GameState, Player, Move, NewGameState),
     next_player(Player, NextPlayer),
-    display_game(GameState-NextPlayer), !,
-    game_cycle(NewGameState-NextPlayer).
+    display_game(NewGameState), !,
+    game_cycle(NewGameState, NextPlayer).
 
 
 
 % ------------------------- GAME LOGIC --------------------------------
-choose_move(GameState, human-X, Move, _):- % still needs to check if move is valid
+choose_move(GameState, player(human, X, _), Move):- % still needs to check if move is valid
     format('Player ~d turn!', [X]), nl,
     write('Enter row: '), read(Row),
     write('Enter column: '), read(Column),
     Move = Row-Column.
 
-choose_move(GameState, computer-X, Move):-
-    valid_moves(GameState, Moves),
+choose_move(GameState, player(computer,X,Level), Move):-
+    valid_moves(GameState, Player, Moves),
     choose_move_computer(Level, GameState, Moves, Move).
 
-valid_moves(GameState, Moves):-
+valid_moves(GameState, Player, Moves):-
     findall(
         Row-Column, 
         (between(0,8,Row),
         between(0,8,Column),
-        move(GameState, Row-Column, NewState)),
+        move(GameState, Player, Row-Column, NewState)),
         Moves).
 
-choose_move_computer(1, _GameState, Moves, Move):-
+choose_move_computer(1, _GameState, Player, Moves, Move):-
     random_select(Move, Moves, _Rest).
 
-choose_move_computer(2, GameState, Moves, Move):-
+choose_move_computer(2, GameState, Player, Moves, Move):-
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
-        move(GameState, Mv, NewState),
+        move(GameState, Mv, Player, NewState),
         evaluate_board(NewState, Value) ), [_V-Move|_]).
 
 
-move(GameState, Row-Column, NewGameState):-
+move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate move
     nth(Row, GameState, RowList),
     nth(Column, RowList, 0),
-    replace(Column, RowList, 2, NewRowList),
+    replace(Column, RowList, N, NewRowList),
     replace(Row, GameState, NewRowList, NewGameState).
-    
-    
-replace(0, [_|T], X, [X|T]) :- !.
-replace(N, [H|T], X, [H|T1]) :-
-    N1 is N-1,
-    replace(N1, T, X, T1).
+
+next_player(player(_, 1, _), NextPlayer) :- 
+    NextPlayer = player(X, 2, Y), !.
+
+next_player(player(_, 2, _), NextPlayer) :-
+    NextPlayer = player(_, 1, _), !.
 
 
 game_over(GameState, Winner) :- 
     nth(4, GameState, Row),
-    nth(4, Row, Winner), (Winner \= 0), !.
+    nth(4, Row, Winner), (Winner \== 0), !.
+
+
 
 
 % ------------------------- GAME MENUS --------------------------------
@@ -92,12 +96,12 @@ display_main_menu :-
     write(' ------------------------------------------------- \n').  
 
 
-choose_main_menu(1):- play_game(player(human,1,0), player(human,2,0)).   
-choose_main_menu(2):- play_game(player(human,1,0), player(computer,2,1)).
-choose_main_menu(3):- play_game(player(human,1,0), player(computer,2,2)).
-choose_main_menu(4):- play_game(player(computer,1,1), player(computer,2,1)).
-choose_main_menu(5):- play_game(player(computer,1,1), player(computer,2,2)).
-choose_main_menu(6):- play_game(player(computer,1,2), player(computer,2,2)).
+choose_main_menu(1):- assert(player(human,1,0)), assert(player(human,2,0)), play_game().   
+choose_main_menu(2):- assert(player(human,1,0)), assert(player(computer,2,1)), play_game().
+choose_main_menu(3):- assert(player(human,1,0)), assert(player(computer,2,2)), play_game().
+choose_main_menu(4):- assert(player(computer,1,1)), assert(player(computer,2,1)), play_game().
+choose_main_menu(5):- assert(player(computer,1,1)), assert(player(computer,2,2)), play_game().
+choose_main_menu(6):- assert(player(computer,1,2)), assert(player(computer,2,2)), play_game().
 choose_main_menu(7):- halt.
 
 
@@ -132,7 +136,8 @@ display_cell(H) :-
 
 
 congratulate(Winner) :-
-    format('Congratulations, you won Player ~d!', [Winner]), nl.
+    player(Type, Winner, _), !,
+    format('Congratulations, you won ~w ~d!', [Type, Winner]), nl.
 
 
 
@@ -146,5 +151,9 @@ nth(N, [_|T], X) :-
     nth(N1, T, X).
 
 
+replace(0, [_|T], X, [X|T]) :- !.
+replace(N, [H|T], X, [H|T1]) :-
+    N1 is N-1,
+    replace(N1, T, X, T1).
 
 
