@@ -24,8 +24,7 @@ example(1) :-
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,1,0,0]],
-    Player = human,
-    display_game(GameState-Player).
+    display_game(GameState).
 
 
 % Test the move input from human player
@@ -69,3 +68,5 @@ example(4) :-
     write('Your option was: '), write(Option),
     choose_main_menu(Option).
     
+
+example(5) :- !.
