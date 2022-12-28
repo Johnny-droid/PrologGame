@@ -42,8 +42,8 @@ choose_move(2, GameState, Moves, Move):-
 
 
 game_over(GameState, Winner) :- 
-    nth0(4, GameState, Row),
-    nth0(4, Row, Winner), !.
+    nth(4, GameState, Row),
+    nth(4, Row, Winner), !.
 
 
 % ------------------------- DISPLAY GAME --------------------------------
@@ -82,7 +82,12 @@ congratulate(Winner) :-
 
 
 
+% ------------------------- Auxiliary Functions ----------------------------
 
+nth(0, [H|_], H) :- !.
+nth(N, [_|T], X) :-
+    N1 is N-1,
+    nth(N1, T, X).
 
 
 
