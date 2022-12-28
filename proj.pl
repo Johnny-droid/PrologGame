@@ -1,5 +1,6 @@
 % GameState is a list of lists (9x9)
 
+% ------------------------- GAME MAIN STRUCTURE --------------------------------
 play_game:-
     initial_state(GameState-Player),
     display_game(GameState-Player),
@@ -18,7 +19,8 @@ game_cycle(GameState-Player):-
 
 
 
-choose_move(GameState, human-X, Move):- 
+% ------------------------- GAME LOGIC --------------------------------
+choose_move(GameState, human-X, Move):- % still needs to check if move is valid
     format('Player ~d turn!', [X]), nl,
     write('Enter row: '), read(Row),
     write('Enter column: '), read(Column),
@@ -39,18 +41,19 @@ choose_move(2, GameState, Moves, Move):-
         evaluate_board(NewState, Value) ), [_V-Move|_]).
 
 
-
+game_over(GameState, Winner) :- 
+    nth0(4, GameState, Row),
+    nth0(4, Row, Winner), !.
 
 
 % ------------------------- DISPLAY GAME --------------------------------
-
 display_game(GameState-Player) :-
     display_header,
-    display_game_aux(GameState-Player, 1).
+    display_game_aux(GameState-Player, 0).
 
 display_header :-
     write('    -------------------------------------'), nl,
-    write('    | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |'), nl,
+    write('    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |'), nl,
     write('-----------------------------------------'), nl.   
 
 display_game_aux([]-_, _) :- !.
@@ -72,7 +75,8 @@ display_cell(H) :-
     H = 2 -> write('O')).
 
 
-
+congratulate(Winner) :-
+    format('Congratulations, you won Player ~d!', [Winner]), nl.
 
 
 
@@ -109,7 +113,25 @@ example(2) :-
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0]],
-    Player = computer,
+    Player = human,
     display_game(GameState-Player),
-    choose_move(GameState, human-1, Move),
+    choose_move(GameState, Player-1, Move),
     write(Move).
+
+
+example(3) :- 
+    GameState = [[1,0,0,0,0,0,0,0,0],
+                 [0,1,0,0,0,0,0,0,0],
+                 [0,0,1,0,0,0,0,0,0],
+                 [0,0,0,1,0,0,0,0,0],
+                 [0,0,0,0,2,0,0,0,0],
+                 [0,0,0,0,0,1,0,0,0],
+                 [0,0,0,0,0,0,1,0,0],
+                 [0,0,0,0,0,0,0,1,0],
+                 [0,0,0,0,0,0,0,0,1]],
+    Player = human,
+    display_game(GameState-Player),
+    game_over(GameState, Winner),
+    congratulate(Winner).
+
+
