@@ -3,8 +3,8 @@
 % GameState is a list of lists (9x9)
 
 % ------------------------- GAME MAIN STRUCTURE --------------------------------
-play_game(Player1, Player2):-
-    initial_state(GameState, Player1-Player2),
+play_game:-
+    initial_state(GameState-Player),
     display_game(GameState-Player),
     game_cycle(GameState-Player).
 
@@ -19,10 +19,6 @@ game_cycle(GameState-Player):-
     display_game(GameState-NextPlayer), !,
     game_cycle(NewGameState-NextPlayer).
 
-initial_state(GameState, Player1-Player2):-
-    empty_board(GameState),
-    Player1 = human,
-    Player2 = human.
 
 % ------------------------- GAME MENUS --------------------------------
 
@@ -44,7 +40,7 @@ choose_main_menu :-
     write('Enter your option: '), read(Option),
     choose_main_menu(Option).
 
-choose_main_menu(1):- play_game(human, human).   
+choose_main_menu(1):- play_game.   
 choose_main_menu(2):- play_game.
 choose_main_menu(3):- play_game.
 choose_main_menu(4):- halt.
@@ -74,7 +70,7 @@ choose_move(2, GameState, Moves, Move):-
 
 game_over(GameState, Winner) :- 
     nth(4, GameState, Row),
-    nth(4, Row, Winner), !.
+    nth(4, Row, Winner), (Winner \= 0), !.
 
 
 % ------------------------- DISPLAY GAME --------------------------------
