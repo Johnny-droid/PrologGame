@@ -1,8 +1,10 @@
+:- consult('board.pl').
+
 % GameState is a list of lists (9x9)
 
 % ------------------------- GAME MAIN STRUCTURE --------------------------------
-play_game:-
-    initial_state(GameState-Player),
+play_game(Player1, Player2):-
+    initial_state(GameState, Player1-Player2),
     display_game(GameState-Player),
     game_cycle(GameState-Player).
 
@@ -17,6 +19,35 @@ game_cycle(GameState-Player):-
     display_game(GameState-NextPlayer), !,
     game_cycle(NewGameState-NextPlayer).
 
+initial_state(GameState, Player1-Player2):-
+    empty_board(GameState),
+    Player1 = human,
+    Player2 = human.
+
+% ------------------------- GAME MENUS --------------------------------
+
+display_main_menu :- 
+    write(' ------------------------------------------------- \n'),
+    write('|                                                 | \n'),  
+    write('|                     CENTER                      | \n'),
+    write('|                                                 | \n'),   
+    write('|               1. Player vs Player               | \n'),
+    write('|               2. Player vs Computer             | \n'), 
+    write('|               2. Computer vs Computer           | \n'), 
+    write('|               3. Exit                           | \n'), 
+    write('|                                                 | \n'),  
+    write('|                                                 | \n'),   
+    write(' ------------------------------------------------- \n').  
+
+choose_main_menu :-
+    display_main_menu,
+    write('Enter your option: '), read(Option),
+    choose_main_menu(Option).
+
+choose_main_menu(1):- play_game(human, human).   
+choose_main_menu(2):- play_game.
+choose_main_menu(3):- play_game.
+choose_main_menu(4):- halt.
 
 
 % ------------------------- GAME LOGIC --------------------------------
@@ -139,4 +170,5 @@ example(3) :-
     game_over(GameState, Winner),
     congratulate(Winner).
 
-
+example(4) :- 
+    choose_main_menu.
