@@ -131,3 +131,37 @@ example(7) :-
     retractall(player(_,_,_)).
 
 
+example(8) :- 
+    assert(player(human, 1, 0)),
+    assert(player(human, 2, 0)),
+
+    Player = player(human, 1, 0),
+
+    RowList = [0,1,0,0,0,0,0,0,0]
+    write('RowList: '), write(RowList), nl,
+    Value is 0,
+    check_horizontal(RowList, 4, Player, Value),
+    write('Value: '), write(Value), nl,
+    retractall(player(_,_,_)).
+
+
+
+example(9) :- 
+    assert(player(human, 1, 0)),
+    assert(player(human, 2, 0)),
+
+    Player = player(human, 1, 0),
+
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,1,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+    display_game(GameState),
+    check_horizontal(GameState, 1-4, Player, Value),
+    write('Value: '), write(Value), nl,
+    retractall(player(_,_,_)).

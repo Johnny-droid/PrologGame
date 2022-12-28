@@ -29,10 +29,12 @@ game_cycle(GameState, Player):-
 
 
 % ------------------------- GAME LOGIC --------------------------------
-choose_move(GameState, player(human, X, _), Move):- % still needs to check if move is valid
+choose_move(GameState, player(human, X, _), Move):- % still needs to check if move is valid. Probably use repeat here
     format('Player ~d turn!', [X]), nl,
     write('Enter row: '), read(Row),
     write('Enter column: '), read(Column),
+    Column >= 0, Column < 9,
+    Row >= 0, Row < 9,
     Move = Row-Column.
 
 choose_move(GameState, player(computer,X,Level), Move):-
@@ -47,9 +49,11 @@ valid_moves(GameState, Player, Moves):-
         move(GameState, Player, Row-Column, NewState)),
         Moves).
 
+% Level 1
 choose_move_computer(1, _GameState, Player, Moves, Move):-
     random_select(Move, Moves, _Rest).
 
+% Level 2
 choose_move_computer(2, GameState, Player, Moves, Move):-
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
@@ -62,6 +66,14 @@ move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate
     nth(Column, RowList, 0),
     replace(Column, RowList, N, NewRowList),
     replace(Row, GameState, NewRowList, NewGameState).
+
+
+valid_move(GameState, Row-Column):- !.
+
+
+
+
+
 
 next_player(player(_, 1, _), NextPlayer) :- 
     NextPlayer = player(X, 2, Y), !.
@@ -150,6 +162,11 @@ nth(N, [_|T], X) :-
     N1 is N-1,
     nth(N1, T, X).
 
+nthMatrix(0-Column, [H|_], Value) :- 
+    nth(Column, H, Value), !.
+nthMatrix(Row-Column, [_|T], Value) :-
+    Row1 is Row-1,
+    nthMatrix(Row1-Column, T, Value).
 
 replace(0, [_|T], X, [X|T]) :- !.
 replace(N, [H|T], X, [H|T1]) :-
@@ -157,3 +174,61 @@ replace(N, [H|T], X, [H|T1]) :-
     replace(N1, T, X, T1).
 
 
+check_direction(RowStart-ColumnStart, RowDirection-ColumnDirection, GameState, Player, Value):-
+    RowStart1 is RowStart+RowDirection,
+    ColumnStart1 is ColumnStart+ColumnDirection,
+    check_direction_aux(RowStart1-ColumnStart1, RowDirection-ColumnDirection, GameState, Player, Value).
+
+check_direction_aux(RowStart-ColumnStart, RowDirection-ColumnDirection, GameState, player(_, N, _), Value):-
+    nthMatrix(RowStart-ColumnStart, GameState, ValueTemp),
+    (ValueTemp == N -> Value is 1;
+    ValueTemp \== 0 -> Value is 0;
+    RowStart1 is RowStart+RowDirection,
+    ColumnStart1 is ColumnStart+ColumnDirection,
+    check_direction_aux(RowStart1-ColumnStart1, RowDirection-ColumnDirection, GameState, Player, Value)).
+
+check_horizontal(GameState, Row-Column, Player, Value):-
+    check_direction(Row-Column, 0-1, GameState, Player, ValueLeft),
+    check_direction(Row-Column, 0-1, GameState, Player, ValueRight),
+    Value is ValueLeft+ValueRight.
+
+check_vertical(GameState, Row-Column, Player, Value):-
+    check_direction(Row-Column, 1-0, GameState, Player, ValueUp),
+    check_direction(Row-Column, -1-0, GameState, Player, ValueDown),
+    Value is ValueUp+ValueDown.
+
+check_diagonal(GameState, Row-Column, Player, Value):-
+    check_direction(Row-Column, 1-1, GameState, Player, ValueUpRight),
+    check_direction(Row-Column, -1-1, GameState, Player, ValueDownLeft),
+    Value is ValueUpRight+ValueDownLeft.
+
+check_diagonal(GameState, Row-Column, Player, Value):-
+    check_direction(Row-Column, 1-1, GameState, Player, ValueUpLeft),
+    check_direction(Row-Column, -1-1, GameState, Player, ValueDownRight),
+    Value is ValueUpLeft+ValueDownRight.
+
+/*
+check_horizontal(GameState, Row-Column, Player, Value):-
+    nth(Row, GameState, RowList),
+    ValueLeft is 0,
+    ValueRight is 0,
+    check_left(RowList, Column, Player, ValueLeft),
+    %check_right(RowList, Column, Player, ValueRight),
+    Value is ValueLeft+ValueRight.
+
+check_left(_, 0, _, _) :- !.
+check_left(RowList, Column, player(_,N,_), Value) :-
+    Column1 is Column-1,
+    nth(Column1, RowList, X),
+    (X == 0 -> check_left(RowList, Column1, Player, ValueTemp);
+    X == N -> Value is 1).
+*/
+
+/*
+check_left([], 0, _, _) :- !.
+check_left([H|T], 0, player(_, N, _), Value) :- 
+    ValueTemp is -1,
+    check_left(T, 0, player(_, N, _), ValueTemp),
+    (H \== N -> Value is -1;
+    H \== Player, !.
+*/
