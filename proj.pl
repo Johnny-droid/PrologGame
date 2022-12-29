@@ -1,4 +1,7 @@
 :- use_module(library(between)).
+:- use_module(library(random)).
+
+:- dynamic player/3.
 
 :- consult('board.pl').
 
