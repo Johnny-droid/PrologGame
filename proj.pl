@@ -61,8 +61,8 @@ choose_move_computer(_GameState, player(computer,_,1), Moves, Move):-
 choose_move_computer(GameState, player(computer,X,2), Moves, Move):-
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
-        move(GameState, Mv, player(computer,X,2), NewState),
-        evaluate_board(NewState, Value) ), [_V-Move|_]).
+        move(GameState, player(computer,X,2), Mv, NewState),
+        evaluate_board(NewState, player(computer,X,2), Value) ), [_V-Move|_]).
 
 
 move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate move
@@ -220,4 +220,22 @@ border_distance(Row-Column, Distance):-
     MinRow is min(Row1, Row2),
     MinColumn is min(Col1, Col2),
     Distance is min(MinRow, MinColumn).
+
+
+evaluate_board(GameState, Player, Value):-
+    evaluate_board_aux(GameState, Player, 0, 0, Value).
+
+evaluate_board_aux([], _Player, _RowNumber, Value, Value) :- !.
+evaluate_board_aux([Row | Tail], Player, RowNumber, Value, ValueFinal):-
+    evaluate_row(Row, RowNumber, 0, Player, 0, ValueRow),
+    ValueMax is max(Value, ValueRow),
+    RowNumber1 is RowNumber+1,
+    evaluate_board_aux(Tail, Player, RowNumber1, ValueMax, ValueFinal).
+
+evaluate_row([], _RowNumber, _ColumnNumber, _Player, Value, Value) :- !.
+evaluate_row([H | T], RowNumber, ColumnNumber, player(_, N, _), Value, ValueFinal):-
+    (H == N -> border_distance(RowNumber-ColumnNumber, Distance), Value1 is max(Value, Distance);
+    Value1 is Value),
+    ColumnNumber1 is ColumnNumber+1,
+    evaluate_row(T, RowNumber, ColumnNumber1, player(_, N, _), Value1, ValueFinal).
 

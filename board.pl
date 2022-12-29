@@ -189,7 +189,7 @@ example(11) :-
     check_horizontal(GameState, 2-2, Player, Value1),
     write('Value: '), write(Value1), nl.
 
-
+% checks vertical for 2 in a column
 example(12) :- 
     Player = player(human, 2, 0),
 
@@ -205,3 +205,32 @@ example(12) :-
     check_vertical(GameState, 3-4, Player, Value1),
     write('It should be value: 1'), nl,
     write('Value: '), write(Value1), nl.
+
+% test evaluate_row function
+example(13) :-
+    Player = player(human, 1, 0),
+
+    Row = [0,0,0,1,0,0,0,0,0],
+    evaluate_row(Row, 4, 0, Player, 0, Value),
+    write('Value: '), write(Value), nl.
+
+
+% test evaluate_board function
+example(14) :-
+    Player = player(computer, 1, 2),
+
+    GameState = [[0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,1,0,0,0,0,0],
+                 [0,0,0,0,1,2,0,0,0],
+                 [0,1,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+    evaluate_board(GameState, Player, Value),
+    write('Value: '), write(Value), nl.
+
+
+
+
