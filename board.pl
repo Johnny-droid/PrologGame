@@ -219,18 +219,37 @@ example(13) :-
 example(14) :-
     Player = player(computer, 1, 2),
 
-    GameState = [[0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,1,0,0,0,0,0],
-                 [0,0,0,0,1,2,0,0,0],
-                 [0,1,0,0,0,0,0,0,0],
+    GameState = [[1,0,0,0,0,0,0,0,1],
+                 [1,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0],
-                 [0,0,0,0,0,0,0,0,0]],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,2,0],
+                 [0,0,0,0,0,0,0,0,2]],
     evaluate_board(GameState, Player, Value),
     write('Value: '), write(Value), nl.
 
 
+% test computer level 2 moves calculation
 
+example(15) :- 
+    Player = player(computer, 1, 2),
+
+    GameState = [[1,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,2,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0]],
+
+    valid_moves(GameState, Player, Moves),
+    write('Valid Moves: '), write(Moves), nl,
+    choose_move_computer(GameState, Player, Moves, Move),
+    write('Move: '), write(Move), nl.
+    
 

@@ -23,7 +23,7 @@ game_cycle(GameState, _-_):-
     congratulate(Winner).
 
 game_cycle(GameState, Player-NextPlayer):-
-    repeat,
+    %repeat,
     choose_move(GameState, Player, Move),
     move(GameState, Player, Move, NewGameState), !,
     display_game(NewGameState), 
@@ -32,16 +32,16 @@ game_cycle(GameState, Player-NextPlayer):-
 
 
 % ------------------------- GAME LOGIC --------------------------------
-choose_move(GameState, player(human, X, _), Move):- % still needs to check if move is valid. Probably use repeat here
-    format('\nPlayer ~d turn!', [X]), nl,
-    write('Enter row: '), read(Row),
-    write('Enter column: '), read(Column),
+choose_move(_GameState, player(human, X, _), Move):- % still needs to check if move is valid. Probably use repeat here
+    format('Player ~d turn!', [X]), nl,
+    write('Enter row: '), read(Row), nl,
+    write('Enter column: '), read(Column), nl, nl,
     Column >= 0, Column < 9,
     Row >= 0, Row < 9,
     Move = Row-Column.
 
 choose_move(GameState, player(computer, X, Level), Move):-
-    format('\nComputer ~d turn! (LvL ~d)', [X, Level]), nl,
+    format('Computer ~d turn! (LvL ~d)\n\n', [X, Level]), nl,
     valid_moves(GameState, player(computer, X, Level), Moves),
     choose_move_computer(GameState, player(computer, X, Level), Moves, Move).
 
@@ -53,6 +53,10 @@ valid_moves(GameState, Player, Moves):-
         move(GameState, Player, Row-Column, _NewGameState)),
         Moves).
 
+
+choose_move_computer(_GameState, _, [], _Move) :- 
+    write('No valid moves!'), nl.
+
 % Level 1
 choose_move_computer(_GameState, player(computer,_,1), Moves, Move):-
     random_select(Move, Moves, _Rest).
@@ -62,7 +66,8 @@ choose_move_computer(GameState, player(computer,X,2), Moves, Move):-
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
         move(GameState, player(computer,X,2), Mv, NewState),
-        evaluate_board(NewState, player(computer,X,2), Value) ), [_V-Move|_]).
+        evaluate_board(NewState, player(computer,X,2), Value) ), MovesWithValue),
+    last(MovesWithValue, Value-Move).
 
 
 move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate move
@@ -174,6 +179,10 @@ replace(N, [H|T], X, [H|T1]) :-
     replace(N1, T, X, T1).
 
 
+last([X], X) :- !.
+last([_|T], X) :- last(T, X).
+
+
 check_direction(RowStart-ColumnStart, RowDirection-ColumnDirection, GameState, Player, Value):-
     RowStart1 is RowStart+RowDirection,
     ColumnStart1 is ColumnStart+ColumnDirection,
@@ -238,4 +247,6 @@ evaluate_row([H | T], RowNumber, ColumnNumber, player(_, N, _), Value, ValueFina
     Value1 is Value),
     ColumnNumber1 is ColumnNumber+1,
     evaluate_row(T, RowNumber, ColumnNumber1, player(_, N, _), Value1, ValueFinal).
+
+
 
