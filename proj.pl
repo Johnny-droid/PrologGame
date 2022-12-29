@@ -11,28 +11,29 @@
 play :-
     display_main_menu,
     write('Enter your option: '), read(Option),
-    choose_main_menu(Option).
+    choose_main_menu(Option), nl.
 
 play_game(Player, NextPlayer) :-
     initial_state(GameState),
     display_game(GameState),
     game_cycle(GameState, Player-NextPlayer).
 
-game_cycle(GameState, Player-NextPlayer):-
+game_cycle(GameState, _-_):-
     game_over(GameState, Winner), !,
     congratulate(Winner).
 
 game_cycle(GameState, Player-NextPlayer):-
+    repeat,
     choose_move(GameState, Player, Move),
-    move(GameState, Player, Move, NewGameState),
-    display_game(NewGameState), !,
+    move(GameState, Player, Move, NewGameState), !,
+    display_game(NewGameState), 
     game_cycle(NewGameState, NextPlayer-Player).
 
 
 
 % ------------------------- GAME LOGIC --------------------------------
 choose_move(GameState, player(human, X, _), Move):- % still needs to check if move is valid. Probably use repeat here
-    format('Player ~d turn!', [X]), nl,
+    format('\nPlayer ~d turn!', [X]), nl,
     write('Enter row: '), read(Row),
     write('Enter column: '), read(Column),
     Column >= 0, Column < 9,
@@ -40,6 +41,7 @@ choose_move(GameState, player(human, X, _), Move):- % still needs to check if mo
     Move = Row-Column.
 
 choose_move(GameState, player(computer, X, Level), Move):-
+    format('\nComputer ~d turn! (LvL ~d)', [X, Level]), nl,
     valid_moves(GameState, player(computer, X, Level), Moves),
     choose_move_computer(GameState, player(computer, X, Level), Moves, Move).
 
@@ -48,11 +50,11 @@ valid_moves(GameState, Player, Moves):-
         Row-Column, 
         (between(0,8,Row),
         between(0,8,Column),
-        move(GameState, Player, Row-Column, NewState)),
+        move(GameState, Player, Row-Column, _NewGameState)),
         Moves).
 
 % Level 1
-choose_move_computer(_GameState, player(computer,X,1), Moves, Move):-
+choose_move_computer(_GameState, player(computer,_,1), Moves, Move):-
     random_select(Move, Moves, _Rest).
 
 % Level 2
