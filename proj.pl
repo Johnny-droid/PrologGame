@@ -13,23 +13,20 @@ play :-
     write('Enter your option: '), read(Option),
     choose_main_menu(Option).
 
-play_game :-
+play_game(Player, NextPlayer) :-
     initial_state(GameState),
     display_game(GameState),
-    player(Type, 1, Level),
-    write(Player), nl,
-    game_cycle(GameState, player(Type, 1, Level)).
+    game_cycle(GameState, Player-NextPlayer).
 
-game_cycle(GameState, Player):-
+game_cycle(GameState, Player-NextPlayer):-
     game_over(GameState, Winner), !,
     congratulate(Winner).
 
-game_cycle(GameState, Player):-
+game_cycle(GameState, Player-NextPlayer):-
     choose_move(GameState, Player, Move),
     move(GameState, Player, Move, NewGameState),
-    next_player(Player, NextPlayer),
     display_game(NewGameState), !,
-    game_cycle(NewGameState, NextPlayer).
+    game_cycle(NewGameState, NextPlayer-Player).
 
 
 
@@ -85,16 +82,6 @@ valid_move(GameState, Row-Column, Player):-
 
 
 
-
-
-
-next_player(player(_, 1, _), NextPlayer) :- 
-    NextPlayer = player(Type, 2, Level), !.
-
-next_player(player(_, 2, _), NextPlayer) :-
-    NextPlayer = player(Type, 1, Level), !.
-
-
 game_over(GameState, Winner) :- 
     nth(4, GameState, Row),
     nth(4, Row, Winner), (Winner \== 0), !.
@@ -121,12 +108,12 @@ display_main_menu :-
     write(' ------------------------------------------------- \n').  
 
 
-choose_main_menu(1):- assert(player(human,1,0)), assert(player(human,2,0)), play_game.   
-choose_main_menu(2):- assert(player(human,1,0)), assert(player(computer,2,1)), play_game.
-choose_main_menu(3):- assert(player(human,1,0)), assert(player(computer,2,2)), play_game.
-choose_main_menu(4):- assert(player(computer,1,1)), assert(player(computer,2,1)), play_game.
-choose_main_menu(5):- assert(player(computer,1,1)), assert(player(computer,2,2)), play_game.
-choose_main_menu(6):- assert(player(computer,1,2)), assert(player(computer,2,2)), play_game.
+choose_main_menu(1):- play_game(player(human, 1, 0), player(human, 2, 0)), !.
+choose_main_menu(2):- play_game(player(human, 1, 0), player(computer, 2, 1)), !.
+choose_main_menu(3):- play_game(player(human, 1, 0), player(computer, 2, 2)), !.
+choose_main_menu(4):- play_game(player(computer, 1, 1), player(computer, 2, 1)), !.
+choose_main_menu(5):- play_game(player(computer, 1, 1), player(computer, 2, 2)), !.
+choose_main_menu(6):- play_game(player(computer, 1, 2), player(computer, 2, 2)), !.
 choose_main_menu(7):- halt.
 
 
