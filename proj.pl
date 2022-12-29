@@ -148,8 +148,7 @@ display_cell(H) :-
 
 
 congratulate(Winner) :-
-    player(Type, Winner, _), !,
-    format('Congratulations, you won ~w ~d!', [Type, Winner]), nl.
+    format('Player ~d won!', [Winner]), nl.
 
 
 
@@ -220,28 +219,3 @@ border_distance(Row-Column, Distance):-
     MinColumn is min(Col1, Col2),
     Distance is min(MinRow, MinColumn).
 
-/*
-check_horizontal(GameState, Row-Column, Player, Value):-
-    nth(Row, GameState, RowList),
-    ValueLeft is 0,
-    ValueRight is 0,
-    check_left(RowList, Column, Player, ValueLeft),
-    %check_right(RowList, Column, Player, ValueRight),
-    Value is ValueLeft+ValueRight.
-
-check_left(_, 0, _, _) :- !.
-check_left(RowList, Column, player(_,N,_), Value) :-
-    Column1 is Column-1,
-    nth(Column1, RowList, X),
-    (X == 0 -> check_left(RowList, Column1, Player, ValueTemp);
-    X == N -> Value is 1).
-*/
-
-/*
-check_left([], 0, _, _) :- !.
-check_left([H|T], 0, player(_, N, _), Value) :- 
-    ValueTemp is -1,
-    check_left(T, 0, player(_, N, _), ValueTemp),
-    (H \== N -> Value is -1;
-    H \== Player, !.
-*/
