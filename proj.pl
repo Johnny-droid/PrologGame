@@ -10,8 +10,9 @@
 % ------------------------- GAME MAIN STRUCTURE --------------------------------
 play :-
     display_main_menu,
-    write('Enter your option: '), read(Option),
-    choose_main_menu(Option), nl.
+    choose_player(1, Player1),
+    choose_player(2, Player2),
+    play_game(Player1, Player2).
 
 play_game(Player, NextPlayer) :-
     initial_state(GameState),
@@ -23,7 +24,7 @@ game_cycle(GameState, _-_):-
     congratulate(Winner).
 
 game_cycle(GameState, Player-NextPlayer):-
-    %repeat,
+    repeat,
     choose_move(GameState, Player, Move),
     move(GameState, Player, Move, NewGameState), !,
     display_game(NewGameState), 
@@ -34,7 +35,7 @@ game_cycle(GameState, Player-NextPlayer):-
 % ------------------------- GAME LOGIC --------------------------------
 choose_move(_GameState, player(human, X, _), Move):- % still needs to check if move is valid. Probably use repeat here
     format('Player ~d turn!', [X]), nl,
-    write('Enter row: '), read(Row), nl,
+    write('Enter row: '), read(Row),
     write('Enter column: '), read(Column), nl, nl,
     Column >= 0, Column < 9,
     Row >= 0, Row < 9,
@@ -58,15 +59,16 @@ choose_move_computer(_GameState, _, [], _Move) :-
     write('No valid moves!'), nl.
 
 % Level 1
-choose_move_computer(_GameState, player(computer,_,1), Moves, Move):-
+choose_move_computer(_GameState, player(computer,_,1), Moves, Move) :-
     random_select(Move, Moves, _Rest).
 
-% Level 2
-choose_move_computer(GameState, player(computer,X,2), Moves, Move):-
+% Level 2 and 3
+choose_move_computer(GameState, player(computer,X,Level), Moves, Move):-
+    Level \== 1,
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
         move(GameState, player(computer,X,2), Mv, NewState),
-        evaluate_board(NewState, player(computer,X,2), Value) ), MovesWithValue),
+        evaluate_board(NewState, player(computer,X,Level), Value) ), MovesWithValue),
     last(MovesWithValue, MaxValue-_),
     filter_max_value(MaxValue, MovesWithValue, MovesWithHighestValue),
     random_select(Move, MovesWithHighestValue, _Rest).
@@ -98,31 +100,32 @@ game_over(GameState, Winner) :-
 % ------------------------- GAME MENUS --------------------------------
 
 display_main_menu :- 
-    write(' ------------------------------------------------- \n'),
+    write(' -------------------------------------------------  \n'),
     write('|                                                 | \n'),  
-    write('|                     CENTER                      | \n'),
+    write('|                     CENTER                      | \n'), 
     write('|                                                 | \n'),   
-    write('|              1. Player vs Player                | \n'),
-    write('|              2. Player vs Computer1             | \n'),
-    write('|              3. Player vs Computer2             | \n'), 
-    write('|              4. Computer1 vs Computer1          | \n'),
-    write('|              5. Computer1 vs Computer2          | \n'),
-    write('|              6. Computer2 vs Computer2          | \n'),
-    write('|              7. Exit                            | \n'), 
-    write('|                                                 | \n'),  
-    write('|                                                 | \n'),   
-    write(' ------------------------------------------------- \n').  
+    write(' -------------------------------------------------  \n'). 
 
 
-choose_main_menu(1):- play_game(player(human, 1, 0), player(human, 2, 0)), !.
-choose_main_menu(2):- play_game(player(human, 1, 0), player(computer, 2, 1)), !.
-choose_main_menu(3):- play_game(player(human, 1, 0), player(computer, 2, 2)), !.
-choose_main_menu(4):- play_game(player(computer, 1, 1), player(computer, 2, 1)), !.
-choose_main_menu(5):- play_game(player(computer, 1, 1), player(computer, 2, 2)), !.
-choose_main_menu(6):- play_game(player(computer, 1, 2), player(computer, 2, 2)), !.
-choose_main_menu(7):- halt.
+choose_player(N, Player) :- 
+    repeat,
+    format('Choose player ~d: ', [N]), nl,
+    write('1 - Human'), nl,
+    write('2 - Computer'), nl,
+    write('Enter your option: '), read(Option), nl,
+    (Option = 1 -> Player = player(human, N, 0), !;
+    Option = 2 -> choose_level(N, Player), !).
 
-
+choose_level(N, Player) :-
+    repeat,
+    format('Choose level for player ~d: ', [N]), nl,
+    write('1 - Easy'), nl,
+    write('2 - Medium'), nl,
+    write('3 - Hard'), nl,
+    write('Enter your option: '), read(Option), nl,
+    (Option = 1 -> Player = player(computer, N, 1), !;
+    Option = 2 -> Player = player(computer, N, 2), !;
+    Option = 3 -> Player = player(computer, N, 3), !).
 
 % ------------------------- DISPLAY GAME --------------------------------
 display_game(GameState) :-
@@ -218,12 +221,14 @@ border_distance(Row-Column, Distance):-
     Distance is min(MinRow, MinColumn).
 
 
-evaluate_board(GameState, Player, Value):-
-    check_all_directions(GameState, 4-4, Player, Value).
+% ------------------------- Evaluate Board ----------------------------
+% evaluate used in level 3
+evaluate_board(GameState, player(Type, N, 3), Value) :-
+    check_all_directions(GameState, 4-4, player(Type, N, 3) , Value).
 
-/*
-evaluate_board(GameState, Player, Value):-
-    evaluate_board_aux(GameState, Player, 0, 0, Value).
+% evaluate used in level 2
+evaluate_board(GameState, player(Type, N, 2), Value):-
+    evaluate_board_aux(GameState, player(Type, N, 2), 0, 0, Value).
 
 evaluate_board_aux([], _Player, _RowNumber, Value, Value) :- !.
 evaluate_board_aux([Row | Tail], Player, RowNumber, Value, ValueFinal):-
@@ -239,7 +244,7 @@ evaluate_row([H | T], RowNumber, ColumnNumber, player(_, N, _), Value, ValueFina
     ColumnNumber1 is ColumnNumber+1,
     evaluate_row(T, RowNumber, ColumnNumber1, player(_, N, _), Value1, ValueFinal).
 
-*/
+
 
 
 
