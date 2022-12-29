@@ -41,7 +41,7 @@ choose_move(_GameState, player(human, X, _), Move):- % still needs to check if m
     Move = Row-Column.
 
 choose_move(GameState, player(computer, X, Level), Move):-
-    format('Computer ~d turn! (LvL ~d)\n\n', [X, Level]), nl,
+    format('Player ~d turn! (LvL ~d)\n\n', [X, Level]), nl,
     valid_moves(GameState, player(computer, X, Level), Moves),
     choose_move_computer(GameState, player(computer, X, Level), Moves, Move).
 
@@ -67,7 +67,10 @@ choose_move_computer(GameState, player(computer,X,2), Moves, Move):-
         NewState^( member(Mv, Moves),
         move(GameState, player(computer,X,2), Mv, NewState),
         evaluate_board(NewState, player(computer,X,2), Value) ), MovesWithValue),
-    last(MovesWithValue, Value-Move).
+    last(MovesWithValue, MaxValue-_),
+    filter_max_value(MaxValue, MovesWithValue, MovesWithHighestValue),
+    random_select(Move, MovesWithHighestValue, _Rest).
+
 
 
 move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate move
@@ -79,12 +82,8 @@ move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate
 
 
 valid_move(GameState, Row-Column, Player):- 
-    check_horizontal(GameState, Row-Column, Player, Value1),
-    check_vertical(GameState, Row-Column, Player, Value2),
-    check_diagonal1(GameState, Row-Column, Player, Value3),
-    check_diagonal2(GameState, Row-Column, Player, Value4),
+    check_all_directions(GameState, Row-Column, Player, Value),
     border_distance(Row-Column, Distance),
-    Value is Value1+Value2+Value3+Value4,
     Distance @=< Value.
 
 
@@ -161,26 +160,14 @@ congratulate(Winner) :-
 
 
 
-% ------------------------- Auxiliary Functions ----------------------------
+% ------------------------- Direction Functions ----------------------------
 
-nth(0, [H|_], H) :- !.
-nth(N, [_|T], X) :-
-    N1 is N-1,
-    nth(N1, T, X).
-
-nthMatrix(Row-Column, GameState, Value) :-
-    nth(Row, GameState, RowList),
-    nth(Column, RowList, Value).
-
-
-replace(0, [_|T], X, [X|T]) :- !.
-replace(N, [H|T], X, [H|T1]) :-
-    N1 is N-1,
-    replace(N1, T, X, T1).
-
-
-last([X], X) :- !.
-last([_|T], X) :- last(T, X).
+check_all_directions(GameState, Row-Column, Player, Value) :-
+    check_horizontal(GameState, Row-Column, Player, Value1),
+    check_vertical(GameState, Row-Column, Player, Value2),
+    check_diagonal1(GameState, Row-Column, Player, Value3),
+    check_diagonal2(GameState, Row-Column, Player, Value4),
+    Value is Value1+Value2+Value3+Value4.
 
 
 check_direction(RowStart-ColumnStart, RowDirection-ColumnDirection, GameState, Player, Value):-
@@ -232,6 +219,10 @@ border_distance(Row-Column, Distance):-
 
 
 evaluate_board(GameState, Player, Value):-
+    check_all_directions(GameState, 4-4, Player, Value).
+
+/*
+evaluate_board(GameState, Player, Value):-
     evaluate_board_aux(GameState, Player, 0, 0, Value).
 
 evaluate_board_aux([], _Player, _RowNumber, Value, Value) :- !.
@@ -248,5 +239,38 @@ evaluate_row([H | T], RowNumber, ColumnNumber, player(_, N, _), Value, ValueFina
     ColumnNumber1 is ColumnNumber+1,
     evaluate_row(T, RowNumber, ColumnNumber1, player(_, N, _), Value1, ValueFinal).
 
+*/
 
 
+
+% ------------------------- Auxiliary Functions ----------------------------
+
+nth(0, [H|_], H) :- !.
+nth(N, [_|T], X) :-
+    N1 is N-1,
+    nth(N1, T, X).
+
+nthMatrix(Row-Column, GameState, Value) :-
+    nth(Row, GameState, RowList),
+    nth(Column, RowList, Value).
+
+
+replace(0, [_|T], X, [X|T]) :- !.
+replace(N, [H|T], X, [H|T1]) :-
+    N1 is N-1,
+    replace(N1, T, X, T1).
+
+
+last([X], X) :- !.
+last([_|T], X) :- last(T, X).
+
+
+filter_max_value(Max, MovesWithValue, Moves) :-
+    filter_max_value_aux(Max, MovesWithValue, [], Moves).
+
+filter_max_value_aux(_, [], Moves, Moves) :- !.
+
+filter_max_value_aux(Max, [Value-Move | Tail], L, Moves) :-
+    (Move == 4-4 -> filter_max_value_aux(Max, [], [4-4], Moves);
+    Value >= Max -> filter_max_value_aux(Max, Tail, [Move | L], Moves);
+    filter_max_value_aux(Max, Tail, L, Moves)).

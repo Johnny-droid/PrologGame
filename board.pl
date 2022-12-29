@@ -253,3 +253,18 @@ example(15) :-
     write('Move: '), write(Move), nl.
     
 
+% Testing filter_max_value
+example(16) :-
+    MovesWithValue = [1-(0-1), 1-(0-2), 2-(0-3), 1-(4-2), 2-(3-8)],
+    filter_max_value(2, MovesWithValue, Moves),
+    write('Moves: '), write(Moves), nl.
+
+
+% Testing filter_max_value but with the Game End Move
+example(17) :-
+    MovesWithValue = [1-(0-1), 1-(0-2), 2-(0-3), 1-(4-4), 2-(3-8)],
+    filter_max_value(2, MovesWithValue, Moves),
+    write('Moves: '), write(Moves), nl.
+
+
+
