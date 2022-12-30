@@ -38,7 +38,7 @@ The game state is composed of the current state of the board and the information
 
 - The board is represented as a list of lists (9x9). Each list represents a row on the board, and each list element represents a board cell. A cell is represented as an atom, indicating if ther is a piece placed, and which player has placed it (0 - empty cell; 1 - placed by Player 1; 2 - placed by Player 2).  
 
-- The players are represented by a predicate player/3, which carries information on the player's type (human or computer), number (1 or 2) and level of difficulty (0 for human, 1, 2 or 3 for computer).  
+- The players are represented by a predicate **player/3**, which carries information on the player's type (human or computer), number (1 or 2) and level of difficulty (0 for human, 1, 2 or 3 for computer).  
 
 `Initial State`  
 
@@ -119,15 +119,74 @@ Regarding the display of the game, there are two focal points: displaying the me
 
 ### Moves Execution  
 
+In order to check to validate and apply a move we created the predicate **move/4**:
+
+```
+move(+GameState, +Player, +Move, -NewGameState)
+```  
+
+The predicate will fail if the given move is not valid.  
+
+There is only one type of move, which is validated based on the previous moves from both players (the current state of the board) as well as the obvious boundaries of the board.  
+
+To validate a move we created a predicate **valid_move/3** which enforces the game logic. This predicate makes use of multiple auxiliary predicates to help us check how many "friendly pieces in sight" there are in all 8 directions from a certain position: **check_all_directions/4**, **check_direction/5**, **check_direction_aux/3**, **check_direction_aux/5**, **check_horizontal/4**, **check_vertical/4**, **check_diagonal1/4** and **check_diagonal2/4**. There is as well as a predicate to calculate the distance of any position to the border of the board: **border_distance/2**.  
+
+Finally, the predicate **replace/4** is used to alter the game state.  
+
+
 ### List of Valid Moves  
+
+An important predicate to allow the game to be played by the computer is **valid_moves/3** which gives us a list of every valid move.  
+
+```
+valid_moves(+GameState, +Player, -Moves)
+```  
+
+Using **findall/3** and **move/4** we are able to find all valid moves a player can make on a given turn.
 
 ### End of Game  
 
+In order to check if the game ended we created the predicate **game_over/2**.  
+
+```
+game_over(+GameState, -Winner)
+```  
+
+There is only one way to win the game, that is to place a piece in the very center of the board (4, 4). So we simply check if the value for that position is different than 0 (no piece) and if so then that value corresponds to the winner (1 or 2).  
+
 ### Board Evaluation  
+
+In order to evaluate the state of the board we used a predicate **evaluate_board/3**.  
+
+```
+evaluate_board(+GameState, +Player, -Value)
+```  
+
+This predicate has two different behaviours. This approach was used to allow more levels of difficulty in the game.  
+
+The first one
+
+The second one is to use **check_all_directions/4** from the center of the board, with the value being the number of "friendly pieces in sight" from the center. This approach will be used for Level 3.  
 
 ### Computer move  
 
-## Conclusions
+To allow the computer choosing a move the predicate **choose_move/3** as different behaviour for computer players, which relies on the predicate **choose_move_computer/4**.  
+
+```
+choose_move(+GameState, +Player, -Move)
+
+choose_move_computer(+GameState, +Player, +Moves, -Move)
+```  
+
+The second one receiving a list of every possible move, and selecting one based on different criteria depending on the level of difficulty.  
+
+- Level 1 (Easy): Chooses a random move, using random_select/3.  
+- Level 2 (Medium): Chooses the valid move with a higher distance to the border (closer to the center). The goal is to reach a cell with distance 4 (which can only be the center).  
+- Level 3 (Hard): Chooses a move that will maximise the number of pieces in sight from the center, making it so that a piece can be placed in center as fast as possible.  
+
+## Conclusions  
+
+The board game *Center* was successfully implemented in the SicStus Prolog 4.7.1 language. The game can be played Player vs Player, Player vs Computer or Computer vs Computer (with the same or different levels).
 
 ## Bibliography  
 

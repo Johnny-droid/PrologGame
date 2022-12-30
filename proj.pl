@@ -75,7 +75,7 @@ choose_move_computer(GameState, player(computer,X,Level), Moves, Move):-
 
 
 
-move(GameState, player(_, N, _), Row-Column, NewGameState):- % needs to validate move
+move(GameState, player(_, N, _), Row-Column, NewGameState):-
     nth(Row, GameState, RowList),
     nth(Column, RowList, 0),
     valid_move(GameState, Row-Column, player(_, N, _)),
