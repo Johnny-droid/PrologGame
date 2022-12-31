@@ -33,7 +33,7 @@ game_cycle(GameState, Player-NextPlayer):-
 
 
 % ------------------------- GAME LOGIC --------------------------------
-choose_move(_GameState, player(human, X, _), Move):- % still needs to check if move is valid. Probably use repeat here
+choose_move(_GameState, player(human, X, _), Move):- 
     format('Player ~d turn!', [X]), nl,
     write('Enter row: '), read(Row),
     write('Enter column: '), read(Column), nl, nl,
