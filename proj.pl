@@ -67,7 +67,7 @@ choose_move_computer(GameState, player(computer,X,Level), Moves, Move):-
     Level \== 1,
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
-        move(GameState, player(computer,X,2), Mv, NewState),
+        move(GameState, player(computer,X,Level), Mv, NewState),
         evaluate_board(NewState, player(computer,X,Level), Value) ), MovesWithValue),
     last(MovesWithValue, MaxValue-_),
     filter_max_value(MaxValue, MovesWithValue, MovesWithHighestValue),
@@ -122,10 +122,12 @@ choose_level(N, Player) :-
     write('1 - Easy'), nl,
     write('2 - Medium'), nl,
     write('3 - Hard'), nl,
+    write('4 - Very Hard'), nl,
     write('Enter your option: '), read(Option), nl,
     (Option = 1 -> Player = player(computer, N, 1), !;
     Option = 2 -> Player = player(computer, N, 2), !;
-    Option = 3 -> Player = player(computer, N, 3), !).
+    Option = 3 -> Player = player(computer, N, 3), !;
+    Option = 4 -> Player = player(computer, N, 4), !).
 
 % ------------------------- DISPLAY GAME --------------------------------
 display_game(GameState) :-
@@ -222,6 +224,13 @@ border_distance(Row-Column, Distance):-
 
 
 % ------------------------- Evaluate Board ----------------------------
+% evaluate used in level 4
+evaluate_board(GameState, player(Type, N, 4), Value) :-
+    check_all_directions(GameState, 4-4, player(Type, N, 3) , ValuePlayer),
+    (N = 1 -> N1 is 2; N1 is 1),
+    check_all_directions(GameState, 4-4, player(Type, N1, 3) , ValueOpponent),
+    Value is ValuePlayer-ValueOpponent.
+
 % evaluate used in level 3
 evaluate_board(GameState, player(Type, N, 3), Value) :-
     check_all_directions(GameState, 4-4, player(Type, N, 3) , Value).
