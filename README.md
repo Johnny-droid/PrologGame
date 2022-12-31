@@ -156,15 +156,15 @@ There is only one way to win the game, that is to place a piece in the very cent
 
 ### Board Evaluation  
 
-In order to evaluate the state of the board we used a predicate **evaluate_board/3**.  
+In order to evaluate the state of the board we used a predicate **value/3**.  
 
 ```
-evaluate_board(+GameState, +Player, -Value)
+value(+GameState, +Player, -Value)
 ```  
 
 This predicate has three different behaviours. This approach was used to allow more levels of difficulty in the game.  
 
-The first one uses the auxiliary predicates **evaluate_board_aux/5** and **evaluate_row/6** in order to find the highest distance from the border of the board where the current player can place a piece. This approach will be used for Level 2.  
+The first one uses the auxiliary predicates **value_aux/5** and **value_row/6** in order to find the highest distance from the border of the board where the current player can place a piece. This approach will be used for Level 2.  
 
 The second one is to use **check_all_directions/4** from the center of the board, with the value being the number of "friendly pieces in sight" from the center. This approach will be used for Level 3.  
 
