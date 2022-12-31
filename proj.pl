@@ -68,7 +68,7 @@ choose_move_computer(GameState, player(computer,X,Level), Moves, Move):-
     setof(Value-Mv, 
         NewState^( member(Mv, Moves),
         move(GameState, player(computer,X,Level), Mv, NewState),
-        evaluate_board(NewState, player(computer,X,Level), Value) ), MovesWithValue),
+        value(NewState, player(computer,X,Level), Value) ), MovesWithValue),
     last(MovesWithValue, MaxValue-_),
     filter_max_value(MaxValue, MovesWithValue, MovesWithHighestValue),
     random_select(Move, MovesWithHighestValue, _Rest).
@@ -225,33 +225,33 @@ border_distance(Row-Column, Distance):-
 
 % ------------------------- Evaluate Board ----------------------------
 % evaluate used in level 4
-evaluate_board(GameState, player(Type, N, 4), Value) :-
+value(GameState, player(Type, N, 4), Value) :-
     check_all_directions(GameState, 4-4, player(Type, N, 3) , ValuePlayer),
     (N = 1 -> N1 is 2; N1 is 1),
     check_all_directions(GameState, 4-4, player(Type, N1, 3) , ValueOpponent),
     Value is ValuePlayer-ValueOpponent.
 
 % evaluate used in level 3
-evaluate_board(GameState, player(Type, N, 3), Value) :-
+value(GameState, player(Type, N, 3), Value) :-
     check_all_directions(GameState, 4-4, player(Type, N, 3) , Value).
 
 % evaluate used in level 2
-evaluate_board(GameState, player(Type, N, 2), Value):-
-    evaluate_board_aux(GameState, player(Type, N, 2), 0, 0, Value).
+value(GameState, player(Type, N, 2), Value):-
+    value_aux(GameState, player(Type, N, 2), 0, 0, Value).
 
-evaluate_board_aux([], _Player, _RowNumber, Value, Value) :- !.
-evaluate_board_aux([Row | Tail], Player, RowNumber, Value, ValueFinal):-
-    evaluate_row(Row, RowNumber, 0, Player, 0, ValueRow),
+value_aux([], _Player, _RowNumber, Value, Value) :- !.
+value_aux([Row | Tail], Player, RowNumber, Value, ValueFinal):-
+    value_row(Row, RowNumber, 0, Player, 0, ValueRow),
     ValueMax is max(Value, ValueRow),
     RowNumber1 is RowNumber+1,
-    evaluate_board_aux(Tail, Player, RowNumber1, ValueMax, ValueFinal).
+    value_aux(Tail, Player, RowNumber1, ValueMax, ValueFinal).
 
-evaluate_row([], _RowNumber, _ColumnNumber, _Player, Value, Value) :- !.
-evaluate_row([H | T], RowNumber, ColumnNumber, player(_, N, _), Value, ValueFinal):-
+value_row([], _RowNumber, _ColumnNumber, _Player, Value, Value) :- !.
+value_row([H | T], RowNumber, ColumnNumber, player(_, N, _), Value, ValueFinal):-
     (H == N -> border_distance(RowNumber-ColumnNumber, Distance), Value1 is max(Value, Distance);
     Value1 is Value),
     ColumnNumber1 is ColumnNumber+1,
-    evaluate_row(T, RowNumber, ColumnNumber1, player(_, N, _), Value1, ValueFinal).
+    value_row(T, RowNumber, ColumnNumber1, player(_, N, _), Value1, ValueFinal).
 
 
 
